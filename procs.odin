@@ -227,7 +227,7 @@ foreign cef {
 	v8_context_in_context :: proc() -> libc.int ---
 
 	browser_host_create_browser :: proc(windowInfo: ^Window_Info, client: ^Client, url: ^String, settings: ^Browser_Settings, extra_info: ^Dictionary_Value, request_context: ^Request_Context) -> libc.int ---
-	browser_host_create_browser_sync :: proc(windowInfo: ^Window_Info, client: ^Client, url: ^String, settings: ^Browser_Settings, extra_info: ^Dictionary_Value, request_context: ^Request_Context) -> libc.int ---
+	browser_host_create_browser_sync :: proc(windowInfo: ^Window_Info, client: ^Client, url: ^String, settings: ^Browser_Settings, extra_info: ^Dictionary_Value, request_context: ^Request_Context) -> ^Browser ---
 }
 
 string_wide_copy :: proc(
@@ -255,36 +255,36 @@ string_utf16_copy :: proc(
 }
 
 add_ref :: proc "c" (self: ^Base_Ref_Counted) {
-	context = runtime.default_context()
+	// context = runtime.default_context()
 	// fmt.println(#location().procedure)
 }
 
 release :: proc "c" (self: ^Base_Ref_Counted) -> libc.int {
-	context = runtime.default_context()
+	// context = runtime.default_context()
 	// fmt.println(#location().procedure)
 	return 1
 }
 
 has_one_ref :: proc "c" (self: ^Base_Ref_Counted) -> libc.int {
-	context = runtime.default_context()
+	// context = runtime.default_context()
 	// fmt.println(#location().procedure)
 	return 1
 }
 
-base_ref_counted_init :: proc(base: ^Base_Ref_Counted) {
-	// fmt.println(#location().procedure, base.size)
-	assert(base.size >= 0)
-	base.add_ref = add_ref
-	base.release = release
-	base.has_one_ref = has_one_ref
+has_at_least_one_ref :: proc "c" (self: ^Base_Ref_Counted) -> libc.int {
+	// context = runtime.default_context()
+	// fmt.println(#location().procedure)
+	return 1
 }
 
 make_base_ref_counted :: proc(size: libc.size_t) -> Base_Ref_Counted {
-	base := Base_Ref_Counted {
+	return Base_Ref_Counted {
 		size = size,
+		add_ref = add_ref,
+		release = release,
+		has_one_ref = has_one_ref,
+		has_at_least_one_ref = has_at_least_one_ref,
 	}
-	base_ref_counted_init(&base)
-	return base
 }
 
 to_odin_string :: proc(s: ^String, allocator := context.temp_allocator) -> string {
@@ -318,11 +318,6 @@ delete_cef_string :: proc(s: ^String) {
 		return
 	}
 	s.dtor(s.str)
-}
-
-app_init :: proc(app: ^App) {
-	app.base.size = size_of(App)
-	base_ref_counted_init(&app.base)
 }
 
 make_object :: proc($T: typeid/struct {

@@ -1,36 +1,36 @@
 package cef
 
-import "core:c/libc"
+import "core:c"
 import "core:math"
 import "core:sys/windows"
 
 _String :: struct($T: typeid) {
 	str:    [^]T,
-	length: libc.size_t,
+	length: c.size_t,
 	dtor:   proc "c" (_: [^]T),
 }
 
-String :: distinct _String(libc.char16_t)
+String :: distinct _String(c.uint16_t)
 
-String_Wide :: _String(libc.wchar_t)
-String_UTF8 :: _String(libc.char)
-String_UTF16 :: _String(libc.char16_t)
+String_Wide :: _String(c.wchar_t)
+String_UTF8 :: _String(c.char)
+String_UTF16 :: _String(c.uint16_t)
 
-Errorcode :: enum libc.int {
+Errorcode :: enum c.int {
 	None,
 }
 
 Window_Handle :: windows.HWND
 
-Color :: libc.uint32_t
+Color :: c.uint32_t
 
-State :: enum libc.int {
+State :: enum c.int {
 	Default,
 	Enabled,
 	Disabled,
 }
 
-Log_Severity :: enum libc.int {
+Log_Severity :: enum c.int {
 	Default,
 	Verbose,
 	Debug = Verbose,
@@ -41,7 +41,7 @@ Log_Severity :: enum libc.int {
 	Disable = 99,
 }
 
-Log_Items :: enum libc.int {
+Log_Items :: enum c.int {
 	Default,
 	None,
 	Flag_Process_ID = 1 << 1,
@@ -50,22 +50,22 @@ Log_Items :: enum libc.int {
 	Flag_Tick_Count = 1 << 4,
 }
 
-Runtime_Style :: enum libc.int {
+Runtime_Style :: enum c.int {
 	Default,
 	Chrome,
 	Alloy,
 }
 
 Rect :: struct {
-	x:      libc.int,
-	y:      libc.int,
-	width:  libc.int,
-	height: libc.int,
+	x:      c.int,
+	y:      c.int,
+	width:  c.int,
+	height: c.int,
 }
 
 Size :: struct {
-	width:  libc.int,
-	height: libc.int,
+	width:  c.int,
+	height: c.int,
 }
 
 Preferences_Type :: enum {
@@ -94,7 +94,7 @@ Preference_Registrar :: struct {
 		self: ^Preference_Registrar,
 		name: ^String,
 		default_value: ^Value,
-	) -> libc.int,
+	) -> c.int,
 }
 
 Binary_Value :: struct {
@@ -109,24 +109,24 @@ Binary_Value :: struct {
 	/// dictionary) and that other object is then modified or destroyed. Do not
 	/// call any other functions if this function returns false (0).
 	///
-	is_valid:     proc "c" (self: ^Binary_Value) -> libc.int,
+	is_valid:     proc "c" (self: ^Binary_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object is currently owned by another object.
 	///
-	is_owned:     proc "c" (self: ^Binary_Value) -> libc.int,
+	is_owned:     proc "c" (self: ^Binary_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have the same underlying
 	/// data.
 	///
-	is_same:      proc "c" (self: ^Binary_Value, that: ^Binary_Value) -> libc.int,
+	is_same:      proc "c" (self: ^Binary_Value, that: ^Binary_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have an equivalent
 	/// underlying value but are not necessarily the same object.
 	///
-	is_equal:     proc "c" (self: ^Binary_Value, that: ^Binary_Value) -> libc.int,
+	is_equal:     proc "c" (self: ^Binary_Value, that: ^Binary_Value) -> c.int,
 
 	///
 	/// Returns a copy of this object. The data in this object will also be
@@ -143,7 +143,7 @@ Binary_Value :: struct {
 	///
 	/// Returns the data size.
 	///
-	get_size:     proc "c" (self: ^Binary_Value) -> libc.size_t,
+	get_size:     proc "c" (self: ^Binary_Value) -> c.size_t,
 
 	///
 	/// Read up to |buffer_size| number of bytes into |buffer|. Reading begins at
@@ -152,9 +152,9 @@ Binary_Value :: struct {
 	get_data:     proc "c" (
 		self: ^Binary_Value,
 		buffer: rawptr,
-		buffer_size: libc.size_t,
-		data_offset: libc.size_t,
-	) -> libc.size_t,
+		buffer_size: c.size_t,
+		data_offset: c.size_t,
+	) -> c.size_t,
 }
 
 List_Value :: struct {
@@ -169,31 +169,31 @@ List_Value :: struct {
 	/// dictionary) and that other object is then modified or destroyed. Do not
 	/// call any other functions if this function returns false (0).
 	///
-	is_valid:       proc "c" (self: ^List_Value) -> libc.int,
+	is_valid:       proc "c" (self: ^List_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object is currently owned by another object.
 	///
-	is_owned:       proc "c" (self: ^List_Value) -> libc.int,
+	is_owned:       proc "c" (self: ^List_Value) -> c.int,
 
 	///
 	/// Returns true (1) if the values of this object are read-only. Some APIs may
 	/// expose read-only objects.
 	///
-	is_read_only:   proc "c" (self: ^List_Value) -> libc.int,
+	is_read_only:   proc "c" (self: ^List_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have the same underlying
 	/// data. If true (1) modifications to this object will also affect |that|
 	/// object and vice-versa.
 	///
-	is_same:        proc "c" (self: ^List_Value, that: ^List_Value) -> libc.int,
+	is_same:        proc "c" (self: ^List_Value, that: ^List_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have an equivalent
 	/// underlying value but are not necessarily the same object.
 	///
-	is_equal:       proc "c" (self: ^List_Value, that: ^List_Value) -> libc.int,
+	is_equal:       proc "c" (self: ^List_Value, that: ^List_Value) -> c.int,
 
 	///
 	/// Returns a writable copy of this object.
@@ -204,27 +204,27 @@ List_Value :: struct {
 	/// Sets the number of values. If the number of values is expanded all new
 	/// value slots will default to type null. Returns true (1) on success.
 	///
-	set_size:       proc "c" (self: ^List_Value, size: libc.size_t) -> libc.int,
+	set_size:       proc "c" (self: ^List_Value, size: c.size_t) -> c.int,
 
 	///
 	/// Returns the number of values.
 	///
-	get_size:       proc "c" (self: ^List_Value) -> libc.size_t,
+	get_size:       proc "c" (self: ^List_Value) -> c.size_t,
 
 	///
 	/// Removes all values. Returns true (1) on success.
 	///
-	clear:          proc "c" (self: ^List_Value) -> libc.int,
+	clear:          proc "c" (self: ^List_Value) -> c.int,
 
 	///
 	/// Removes the value at the specified index.
 	///
-	remove:         proc "c" (self: ^List_Value, index: libc.size_t) -> libc.int,
+	remove:         proc "c" (self: ^List_Value, index: c.size_t) -> c.int,
 
 	///
 	/// Returns the value type at the specified index.
 	///
-	get_type:       proc "c" (self: ^List_Value, index: libc.size_t) -> Value_Type,
+	get_type:       proc "c" (self: ^List_Value, index: c.size_t) -> Value_Type,
 
 	///
 	/// Returns the value at the specified index. For simple types the returned
@@ -233,48 +233,48 @@ List_Value :: struct {
 	/// returned value will reference existing data and modifications to the value
 	/// will modify this object.
 	///
-	get_value:      proc "c" (self: ^List_Value, index: libc.size_t) -> ^Value,
+	get_value:      proc "c" (self: ^List_Value, index: c.size_t) -> ^Value,
 
 	///
 	/// Returns the value at the specified index as type bool.
 	///
-	get_bool:       proc "c" (self: ^List_Value, index: libc.size_t) -> libc.int,
+	get_bool:       proc "c" (self: ^List_Value, index: c.size_t) -> c.int,
 
 	///
 	/// Returns the value at the specified index as type int.
 	///
-	get_int:        proc "c" (self: ^List_Value, index: libc.size_t) -> libc.int,
+	get_int:        proc "c" (self: ^List_Value, index: c.size_t) -> c.int,
 
 	///
 	/// Returns the value at the specified index as type double.
 	///
-	get_double:     proc "c" (self: ^List_Value, index: libc.size_t) -> libc.double,
+	get_double:     proc "c" (self: ^List_Value, index: c.size_t) -> c.double,
 
 	///
 	/// Returns the value at the specified index as type string.
 	///
 	// The resulting string must be freed by calling cef_string_userfree_free().
-	get_string:     proc "c" (self: ^List_Value, index: libc.size_t) -> String_Userfree,
+	get_string:     proc "c" (self: ^List_Value, index: c.size_t) -> String_Userfree,
 
 	///
 	/// Returns the value at the specified index as type binary. The returned
 	/// value will reference existing data.
 	///
-	get_binary:     proc "c" (self: ^List_Value, index: libc.size_t) -> ^Binary_Value,
+	get_binary:     proc "c" (self: ^List_Value, index: c.size_t) -> ^Binary_Value,
 
 	///
 	/// Returns the value at the specified index as type dictionary. The returned
 	/// value will reference existing data and modifications to the value will
 	/// modify this object.
 	///
-	get_dictionary: proc "c" (self: ^List_Value, index: libc.size_t) -> ^Dictionary_Value,
+	get_dictionary: proc "c" (self: ^List_Value, index: c.size_t) -> ^Dictionary_Value,
 
 	///
 	/// Returns the value at the specified index as type list. The returned value
 	/// will reference existing data and modifications to the value will modify
 	/// this object.
 	///
-	get_list:       proc "c" (self: ^List_Value, index: libc.size_t) -> ^List_Value,
+	get_list:       proc "c" (self: ^List_Value, index: c.size_t) -> ^List_Value,
 
 	///
 	/// Sets the value at the specified index. Returns true (1) if the value was
@@ -284,41 +284,37 @@ List_Value :: struct {
 	/// then the underlying data will be referenced and modifications to |value|
 	/// will modify this object.
 	///
-	set_value:      proc "c" (self: ^List_Value, index: libc.size_t, value: ^Value) -> libc.int,
+	set_value:      proc "c" (self: ^List_Value, index: c.size_t, value: ^Value) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type null. Returns true (1) if
 	/// the value was set successfully.
 	///
-	set_null:       proc "c" (self: ^List_Value, index: libc.size_t) -> libc.int,
+	set_null:       proc "c" (self: ^List_Value, index: c.size_t) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type bool. Returns true (1) if
 	/// the value was set successfully.
 	///
-	set_bool:       proc "c" (self: ^List_Value, index: libc.size_t, value: libc.int) -> libc.int,
+	set_bool:       proc "c" (self: ^List_Value, index: c.size_t, value: c.int) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type int. Returns true (1) if the
 	/// value was set successfully.
 	///
-	set_int:        proc "c" (self: ^List_Value, index: libc.size_t, value: libc.int),
+	set_int:        proc "c" (self: ^List_Value, index: c.size_t, value: c.int),
 
 	///
 	/// Sets the value at the specified index as type double. Returns true (1) if
 	/// the value was set successfully.
 	///
-	set_double:     proc "c" (
-		self: ^List_Value,
-		index: libc.size_t,
-		value: libc.double,
-	) -> libc.int,
+	set_double:     proc "c" (self: ^List_Value, index: c.size_t, value: c.double) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type string. Returns true (1) if
 	/// the value was set successfully.
 	///
-	set_string:     proc "c" (self: ^List_Value, index: libc.size_t, value: ^String) -> libc.int,
+	set_string:     proc "c" (self: ^List_Value, index: c.size_t, value: ^String) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type binary. Returns true (1) if
@@ -327,11 +323,7 @@ List_Value :: struct {
 	/// change. Otherwise, ownership will be transferred to this object and the
 	/// |value| reference will be invalidated.
 	///
-	set_binary:     proc "c" (
-		self: ^List_Value,
-		index: libc.size_t,
-		value: ^Binary_Value,
-	) -> libc.int,
+	set_binary:     proc "c" (self: ^List_Value, index: c.size_t, value: ^Binary_Value) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type dict. Returns true (1) if
@@ -342,9 +334,9 @@ List_Value :: struct {
 	///
 	set_dictionary: proc "c" (
 		self: ^List_Value,
-		index: libc.size_t,
+		index: c.size_t,
 		value: ^Dictionary_Value,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Sets the value at the specified index as type list. Returns true (1) if
@@ -353,11 +345,7 @@ List_Value :: struct {
 	/// change. Otherwise, ownership will be transferred to this object and the
 	/// |value| reference will be invalidated.
 	///
-	set_list:       proc "c" (
-		self: ^List_Value,
-		index: libc.size_t,
-		value: ^List_Value,
-	) -> libc.int,
+	set_list:       proc "c" (self: ^List_Value, index: c.size_t, value: ^List_Value) -> c.int,
 }
 
 Value_Type :: enum {
@@ -386,31 +374,31 @@ Value :: struct {
 	/// value object can be re-used by calling Set*() even if the underlying data
 	/// is invalid.
 	///
-	is_valid:       proc "c" (self: ^Value) -> libc.int,
+	is_valid:       proc "c" (self: ^Value) -> c.int,
 
 	///
 	/// Returns true (1) if the underlying data is owned by another object.
 	///
-	is_owned:       proc "c" (self: ^Value) -> libc.int,
+	is_owned:       proc "c" (self: ^Value) -> c.int,
 
 	///
 	/// Returns true (1) if the underlying data is read-only. Some APIs may expose
 	/// read-only objects.
 	///
-	is_read_only:   proc "c" (self: ^Value) -> libc.int,
+	is_read_only:   proc "c" (self: ^Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have the same underlying
 	/// data. If true (1) modifications to this object will also affect |that|
 	/// object and vice-versa.
 	///
-	is_same:        proc "c" (self: ^Value, that: ^Value) -> libc.int,
+	is_same:        proc "c" (self: ^Value, that: ^Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object and |that| object have an equivalent
 	/// underlying value but are not necessarily the same object.
 	///
-	is_equal:       proc "c" (self: ^Value, that: ^Value) -> libc.int,
+	is_equal:       proc "c" (self: ^Value, that: ^Value) -> c.int,
 
 	///
 	/// Returns a copy of this object. The underlying data will also be copied.
@@ -425,17 +413,17 @@ Value :: struct {
 	///
 	/// Returns the underlying value as type bool.
 	///
-	get_bool:       proc "c" (self: ^Value) -> libc.int,
+	get_bool:       proc "c" (self: ^Value) -> c.int,
 
 	///
 	/// Returns the underlying value as type int.
 	///
-	get_int:        proc "c" (self: ^Value) -> libc.int,
+	get_int:        proc "c" (self: ^Value) -> c.int,
 
 	///
 	/// Returns the underlying value as type double.
 	///
-	get_double:     proc "c" (self: ^Value) -> libc.double,
+	get_double:     proc "c" (self: ^Value) -> c.double,
 
 	///
 	/// Returns the underlying value as type string.
@@ -478,67 +466,67 @@ Value :: struct {
 	/// Sets the underlying value as type null. Returns true (1) if the value was
 	/// set successfully.
 	///
-	set_null:       proc "c" (self: ^Value) -> libc.int,
+	set_null:       proc "c" (self: ^Value) -> c.int,
 
 
 	///
 	/// Sets the underlying value as type bool. Returns true (1) if the value was
 	/// set successfully.
 	///
-	set_bool:       proc "c" (self: ^Value, value: libc.int) -> libc.int,
+	set_bool:       proc "c" (self: ^Value, value: c.int) -> c.int,
 
 
 	///
 	/// Sets the underlying value as type int. Returns true (1) if the value was
 	/// set successfully.
 	///
-	set_int:        proc "c" (self: ^Value, value: libc.int) -> libc.int,
+	set_int:        proc "c" (self: ^Value, value: c.int) -> c.int,
 
 	///
 	/// Sets the underlying value as type double. Returns true (1) if the value
 	/// was set successfully.
 	///
-	set_double:     proc "c" (self: ^Value, value: libc.double) -> libc.int,
+	set_double:     proc "c" (self: ^Value, value: c.double) -> c.int,
 
 	///
 	/// Sets the underlying value as type string. Returns true (1) if the value
 	/// was set successfully.
 	///
-	set_string:     proc "c" (self: ^Value, value: ^String) -> libc.int,
+	set_string:     proc "c" (self: ^Value, value: ^String) -> c.int,
 
 	///
 	/// Sets the underlying value as type binary. Returns true (1) if the value
 	/// was set successfully. This object keeps a reference to |value| and
 	/// ownership of the underlying data remains unchanged.
 	///
-	set_binary:     proc "c" (self: ^Value, value: ^Binary_Value) -> libc.int,
+	set_binary:     proc "c" (self: ^Value, value: ^Binary_Value) -> c.int,
 
 	///
 	/// Sets the underlying value as type dict. Returns true (1) if the value was
 	/// set successfully. This object keeps a reference to |value| and ownership
 	/// of the underlying data remains unchanged.
 	///
-	set_dictionary: proc "c" (self: ^Value, value: ^Dictionary_Value) -> libc.int,
+	set_dictionary: proc "c" (self: ^Value, value: ^Dictionary_Value) -> c.int,
 
 	///
 	/// Sets the underlying value as type list. Returns true (1) if the value was
 	/// set successfully. This object keeps a reference to |value| and ownership
 	/// of the underlying data remains unchanged.
 	///
-	set_list:       proc "c" (self: ^Value, value: ^List_Value) -> libc.int,
+	set_list:       proc "c" (self: ^Value, value: ^List_Value) -> c.int,
 }
 
 Settings :: struct {
 	///
 	/// Size of this structure.
 	///
-	size:                                libc.size_t,
+	size:                                c.size_t,
 	///
 	/// Set to true (1) to disable the sandbox for sub-processes. See
 	/// cef_sandbox_win.h for requirements to enable the sandbox on Windows. Also
 	/// configurable using the "no-sandbox" command-line switch.
 	///
-	no_sandbox:                          libc.int,
+	no_sandbox:                          c.int,
 	///
 	/// The path to a separate executable that will be launched for sub-processes.
 	/// If this value is empty on Windows or Linux then the main process
@@ -571,7 +559,7 @@ Settings :: struct {
 	/// called from your application message loop. This option is only supported
 	/// on Windows and Linux.
 	///
-	multi_threaded_message_loop:         libc.int,
+	multi_threaded_message_loop:         c.int,
 	///
 	/// Set to true (1) to control browser process main (UI) thread message pump
 	/// scheduling via the CefBrowserProcessHandler::OnScheduleMessagePumpWork()
@@ -583,20 +571,20 @@ Settings :: struct {
 	/// the CefRunMessageLoop() function or multi_threaded_message_loop if
 	/// possible.
 	///
-	external_message_pump:               libc.int,
+	external_message_pump:               c.int,
 	///
 	/// Set to true (1) to enable windowless (off-screen) rendering support. Do
 	/// not enable this value if the application does not use windowless rendering
 	/// as it may reduce rendering performance on some systems.
 	///
-	windowless_rendering_enabled:        libc.int,
+	windowless_rendering_enabled:        c.int,
 	///
 	/// Set to true (1) to disable configuration of browser process features using
 	/// standard CEF and Chromium command-line arguments. Configuration can still
 	/// be specified using CEF data structures or via the
 	/// CefApp::OnBeforeCommandLineProcessing() method.
 	///
-	command_line_args_disabled:          libc.int,
+	command_line_args_disabled:          c.int,
 	///
 	/// The directory where data for the global browser cache will be stored on
 	/// disk. If this value is non-empty then it must be an absolute path that is
@@ -649,7 +637,7 @@ Settings :: struct {
 	/// individual CefRequestContext instances via the
 	/// CefRequestContextSettings.persist_session_cookies value.
 	///
-	persist_session_cookies:             libc.int,
+	persist_session_cookies:             c.int,
 	///
 	/// Value that will be returned as the User-Agent HTTP header. If empty the
 	/// default User-Agent string will be used. Also configurable using the
@@ -730,7 +718,7 @@ Settings :: struct {
 	/// 9229 are discoverable by default. Other port numbers may need to be
 	/// configured via "Discover network targets" on the Devices tab.
 	///
-	remote_debugging_port:               libc.int,
+	remote_debugging_port:               c.int,
 	///
 	/// The number of stack trace frames to capture for uncaught exceptions.
 	/// Specify a positive value to enable the
@@ -739,7 +727,7 @@ Settings :: struct {
 	/// configurable using the "uncaught-exception-stack-size" command-line
 	/// switch.
 	///
-	uncaught_exception_stack_size:       libc.int,
+	uncaught_exception_stack_size:       c.int,
 	///
 	/// Background color used for the browser before a document is loaded and when
 	/// no document color is specified. The alpha component must be either fully
@@ -771,7 +759,7 @@ Settings :: struct {
 	/// CefRequestContextSettings.cookieable_schemes_exclude_defaults values.
 	///
 	cookieable_schemes_list:             String,
-	cookieable_schemes_exclude_defaults: libc.int,
+	cookieable_schemes_exclude_defaults: c.int,
 	///
 	/// Specify an ID to enable Chrome policy management via Platform and OS-user
 	/// policies. On Windows, this is a registry key like
@@ -793,11 +781,11 @@ Settings :: struct {
 	/// [101]) will be loaded from libcef.dll. Only supported with Chrome style on
 	/// Windows.
 	///
-	chrome_app_icon_id:                  libc.int,
+	chrome_app_icon_id:                  c.int,
 	///
 	/// Specify whether signal handlers must be disabled on POSIX systems.
 	///
-	disable_signal_handlers:             libc.int,
+	disable_signal_handlers:             c.int,
 }
 
 Main_Args :: struct {
@@ -805,15 +793,15 @@ Main_Args :: struct {
 }
 
 Base_Ref_Counted :: struct {
-	size:                 libc.size_t,
+	size:                 c.size_t,
 	add_ref:              proc "c" (_: ^Base_Ref_Counted),
-	release:              proc "c" (_: ^Base_Ref_Counted) -> libc.int,
-	has_one_ref:          proc "c" (_: ^Base_Ref_Counted) -> libc.int,
-	has_at_least_one_ref: proc "c" (_: ^Base_Ref_Counted) -> libc.int,
+	release:              proc "c" (_: ^Base_Ref_Counted) -> c.int,
+	has_one_ref:          proc "c" (_: ^Base_Ref_Counted) -> c.int,
+	has_at_least_one_ref: proc "c" (_: ^Base_Ref_Counted) -> c.int,
 }
 
 Base_Scoped :: struct {
-	size: libc.size_t,
+	size: c.size_t,
 	del:  proc "c" (self: ^Base_Scoped),
 }
 
@@ -822,13 +810,13 @@ Scheme_Registrar :: struct {
 	add_custom_scheme: proc "c" (
 		self: ^Scheme_Registrar,
 		scheme_name: ^String,
-		options: libc.int,
-	) -> libc.int,
+		options: c.int,
+	) -> c.int,
 }
 
 Resource_Bundle_Handler :: struct {
 	base:                 Base_Ref_Counted,
-	get_localized_string: proc "c" (_: ^Resource_Bundle_Handler, _: libc.int, _: ^String),
+	get_localized_string: proc "c" (_: ^Resource_Bundle_Handler, _: c.int, _: ^String),
 }
 
 Browser_Process_Handler :: struct {
@@ -904,7 +892,7 @@ Browser_Process_Handler :: struct {
 		self: ^Browser_Process_Handler,
 		command_line: ^Command_Line,
 		current_directory: ^String,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Called from any thread when work has been scheduled for the browser
@@ -921,7 +909,7 @@ Browser_Process_Handler :: struct {
 	///
 	on_schedule_message_pump_work:       proc "c" (
 		self: ^Browser_Process_Handler,
-		delay_ms: libc.int64_t,
+		delay_ms: c.int64_t,
 	),
 
 	///
@@ -985,10 +973,10 @@ Request_Context_Handler :: struct {
 		browser: ^Browser,
 		frame: ^Frame,
 		request: ^Request,
-		is_navigation: libc.int,
-		is_download: libc.int,
+		is_navigation: c.int,
+		is_download: c.int,
 		request_initiator: ^String,
-		disable_default_handling: ^libc.int,
+		disable_default_handling: ^c.int,
 	) -> ^Resource_Request_Handler,
 }
 
@@ -1102,7 +1090,7 @@ Resource_Request_Handler :: struct {
 		frame: ^Frame,
 		request: ^Request,
 		response: ^Response,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Called on the IO thread to optionally filter resource response content.
@@ -1142,7 +1130,7 @@ Resource_Request_Handler :: struct {
 		request: ^Request,
 		response: ^Response,
 		status: URLRequest_Status,
-		received_content_length: libc.int64_t,
+		received_content_length: c.int64_t,
 	),
 
 	///
@@ -1160,7 +1148,7 @@ Resource_Request_Handler :: struct {
 		browser: ^Browser,
 		frame: ^Frame,
 		request: ^Request,
-		allow_os_execution: ^libc.int,
+		allow_os_execution: ^c.int,
 	),
 }
 
@@ -1299,16 +1287,16 @@ App :: struct {
 }
 
 Window_Info :: struct {
-	size:                         libc.size_t,
+	size:                         c.size_t,
 	ex_style:                     windows.DWORD,
 	window_name:                  String,
 	style:                        windows.DWORD,
 	bounds:                       Rect,
 	parent_window:                Window_Handle,
 	menu:                         windows.HMENU,
-	windowless_rendering_enabled: libc.int,
-	shared_texture_enabled:       libc.int,
-	external_begin_frame_enabled: libc.int,
+	windowless_rendering_enabled: c.int,
+	shared_texture_enabled:       c.int,
+	external_begin_frame_enabled: c.int,
 	window:                       Window_Handle,
 	runtime_style:                Runtime_Style,
 }
@@ -1317,7 +1305,7 @@ Browser_Settings :: struct {
 	///
 	/// Size of this structure.
 	///
-	size:                           libc.size_t,
+	size:                           c.size_t,
 
 	///
 	/// The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
@@ -1326,7 +1314,7 @@ Browser_Settings :: struct {
 	/// value is 1 and the maximum value is 60 (default 30). This value can also
 	/// be changed dynamically via CefBrowserHost::SetWindowlessFrameRate.
 	///
-	windowless_frame_rate:          libc.int,
+	windowless_frame_rate:          c.int,
 
 	/// BEGIN values that map to WebPreferences settings.
 
@@ -1339,10 +1327,10 @@ Browser_Settings :: struct {
 	sans_serif_font_family:         String,
 	cursive_font_family:            String,
 	fantasy_font_family:            String,
-	default_font_size:              libc.int,
-	default_fixed_font_size:        libc.int,
-	minimum_font_size:              libc.int,
-	minimum_logical_font_size:      libc.int,
+	default_font_size:              c.int,
+	default_fixed_font_size:        c.int,
+	minimum_font_size:              c.int,
+	minimum_logical_font_size:      c.int,
 
 	///
 	/// Default encoding for Web content. If empty "ISO-8859-1" will be used. Also
@@ -1465,23 +1453,23 @@ String_Userfree :: ^String
 
 Command_Line :: struct {
 	base:                     Base_Ref_Counted,
-	is_valid:                 proc "c" (self: ^Command_Line) -> libc.int,
-	is_read_only:             proc "c" (self: ^Command_Line) -> libc.int,
+	is_valid:                 proc "c" (self: ^Command_Line) -> c.int,
+	is_read_only:             proc "c" (self: ^Command_Line) -> c.int,
 	copy:                     proc "c" (self: ^Command_Line) -> ^Command_Line,
-	init_from_argv:           proc "c" (self: ^Command_Line, argc: libc.int, argv: [^]cstring),
+	init_from_argv:           proc "c" (self: ^Command_Line, argc: c.int, argv: [^]cstring),
 	init_from_string:         proc "c" (self: ^Command_Line, command_line: ^String),
 	reset:                    proc "c" (self: ^Command_Line),
 	get_argv:                 proc "c" (self: ^Command_Line, argv: String_List),
 	get_command_line_string:  proc "c" (self: ^Command_Line) -> String_Userfree,
 	get_program:              proc "c" (self: ^Command_Line) -> String_Userfree,
 	set_program:              proc "c" (self: ^Command_Line, program: ^String),
-	has_switches:             proc "c" (self: ^Command_Line) -> libc.int,
-	has_switch:               proc "c" (self: ^Command_Line, name: ^String) -> libc.int,
+	has_switches:             proc "c" (self: ^Command_Line) -> c.int,
+	has_switch:               proc "c" (self: ^Command_Line, name: ^String) -> c.int,
 	get_switch_value:         proc "c" (self: ^Command_Line, name: ^String) -> String_Userfree,
 	get_switches:             proc "c" (self: ^Command_Line, switches: String_Map),
 	append_switch:            proc "c" (self: ^Command_Line, name: ^String),
 	append_switch_with_value: proc "c" (self: ^Command_Line, name, value: ^String),
-	has_arguments:            proc "c" (self: ^Command_Line) -> libc.int,
+	has_arguments:            proc "c" (self: ^Command_Line) -> c.int,
 	get_arguments:            proc "c" (self: ^Command_Line, arguments: String_List),
 	append_argument:          proc "c" (self: ^Command_Line, argument: ^String),
 	prepend_wrapper:          proc "c" (self: ^Command_Line, wrapper: ^String),
@@ -1494,7 +1482,7 @@ Request_Context :: struct {
 	base: Base_Ref_Counted,
 }
 
-Transition_Type :: enum libc.int {
+Transition_Type :: enum c.int {
 	Link,
 	Explicit,
 	Auto_Bookmark,
@@ -1516,7 +1504,7 @@ Transition_Type :: enum libc.int {
 	Chain_Start_Flag,
 }
 
-PDF_Print_Margin_Type :: enum libc.int {
+PDF_Print_Margin_Type :: enum c.int {
 	Default,
 	None,
 	Custom,
@@ -1526,38 +1514,38 @@ PDF_Print_Settings :: struct {
 	///
 	/// Size of this structure.
 	///
-	size:                      libc.size_t,
+	size:                      c.size_t,
 
 	///
 	/// Set to true (1) for landscape mode or false (0) for portrait mode.
 	///
-	landscape:                 libc.int,
+	landscape:                 c.int,
 
 	///
 	/// Set to true (1) to print background graphics.
 	///
-	print_background:          libc.int,
+	print_background:          c.int,
 
 	///
 	/// The percentage to scale the PDF by before printing (e.g. .5 is 50%).
 	/// If this value is less than or equal to zero the default value of 1.0
 	/// will be used.
 	///
-	scale:                     libc.double,
+	scale:                     c.double,
 
 	///
 	/// Output paper size in inches. If either of these values is less than or
 	/// equal to zero then the default paper size (letter, 8.5 x 11 inches) will
 	/// be used.
 	///
-	paper_width:               libc.double,
-	paper_height:              libc.double,
+	paper_width:               c.double,
+	paper_height:              c.double,
 
 	///
 	/// Set to true (1) to prefer page size as defined by css. Defaults to false
 	/// (0), in which case the content will be scaled to fit the paper size.
 	///
-	prefer_css_page_size:      libc.int,
+	prefer_css_page_size:      c.int,
 
 	///
 	/// Margin type.
@@ -1568,10 +1556,10 @@ PDF_Print_Settings :: struct {
 	/// Margins in inches. Only used if |margin_type| is set to
 	/// PDF_PRINT_MARGIN_CUSTOM.
 	///
-	margin_top:                libc.double,
-	margin_right:              libc.double,
-	margin_bottom:             libc.double,
-	margin_left:               libc.double,
+	margin_top:                c.double,
+	margin_right:              c.double,
+	margin_bottom:             c.double,
+	margin_left:               c.double,
 
 	///
 	/// Paper ranges to print, one based, e.g., '1-5, 8, 11-13'. Pages are printed
@@ -1588,7 +1576,7 @@ PDF_Print_Settings :: struct {
 	/// Set to true (1) to display the header and/or footer. Modify
 	/// |header_template| and/or |footer_template| to customize the display.
 	///
-	display_header_footer:     libc.int,
+	display_header_footer:     c.int,
 
 	///
 	/// HTML template for the print header. Only displayed if
@@ -1616,24 +1604,24 @@ PDF_Print_Settings :: struct {
 	///
 	/// Set to true (1) to generate tagged (accessible) PDF.
 	///
-	generate_tagged_pdf:       libc.int,
+	generate_tagged_pdf:       c.int,
 
 	///
 	/// Set to true (1) to generate a document outline.
 	///
-	generate_document_outline: libc.int,
+	generate_document_outline: c.int,
 }
 Popup_Features :: struct {
-	size:       libc.size_t,
-	x:          libc.int,
-	x_set:      libc.int,
-	y:          libc.int,
-	y_set:      libc.int,
-	width:      libc.int,
-	width_set:  libc.int,
-	height:     libc.int,
-	height_set: libc.int,
-	is_popup:   libc.int,
+	size:       c.size_t,
+	x:          c.int,
+	x_set:      c.int,
+	y:          c.int,
+	y_set:      c.int,
+	width:      c.int,
+	width_set:  c.int,
+	height:     c.int,
+	height_set: c.int,
+	is_popup:   c.int,
 }
 Domnode :: struct {
 }
@@ -1670,7 +1658,7 @@ Browser_Host :: struct {
 	/// to detect mandatory browser close events when customizing close behavior
 	/// on the browser process UI thread.
 	///
-	close_browser:                  proc "c" (self: ^Browser_Host, force_close: libc.int),
+	close_browser:                  proc "c" (self: ^Browser_Host, force_close: c.int),
 
 	///
 	/// Helper for closing a browser. This is similar in behavior to
@@ -1684,7 +1672,7 @@ Browser_Host :: struct {
 	/// close_browser() documentation for additional usage information. This
 	/// function must be called on the browser process UI thread.
 	///
-	try_close_browser:              proc "c" (self: ^Browser_Host) -> libc.int,
+	try_close_browser:              proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Returns true (1) if the browser is ready to be closed, meaning that the
@@ -1702,12 +1690,12 @@ Browser_Host :: struct {
 	/// information. This function must be called on the browser process UI
 	/// thread.
 	///
-	is_ready_to_be_closed:          proc "c" (self: ^Browser_Host) -> libc.int,
+	is_ready_to_be_closed:          proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Set whether the browser is focused.
 	///
-	set_focus:                      proc "c" (self: ^Browser_Host, focus: libc.int),
+	set_focus:                      proc "c" (self: ^Browser_Host, focus: c.int),
 
 	///
 	/// Retrieve the window handle (if any) for this browser. If this browser is
@@ -1729,12 +1717,12 @@ Browser_Host :: struct {
 	/// Retrieve the unique identifier of the browser that opened this browser.
 	/// Will return 0 for non-popup browsers.
 	///
-	get_opener_identifier:          proc "c" (self: ^Browser_Host) -> libc.int,
+	get_opener_identifier:          proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Returns true (1) if this browser is wrapped in a cef_browser_view_t.
 	///
-	has_view:                       proc "c" (self: ^Browser_Host) -> libc.int,
+	has_view:                       proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Returns the client for this browser.
@@ -1750,32 +1738,26 @@ Browser_Host :: struct {
 	/// Returns true (1) if this browser can execute the specified zoom command.
 	/// This function can only be called on the UI thread.
 	///
-	can_zoom:                       proc "c" (
-		self: ^Browser_Host,
-		command: Zoom_Command,
-	) -> libc.int,
+	can_zoom:                       proc "c" (self: ^Browser_Host, command: Zoom_Command) -> c.int,
 
 	///
 	/// Execute a zoom command in this browser. If called on the UI thread the
 	/// change will be applied immediately. Otherwise, the change will be applied
 	/// asynchronously on the UI thread.
 	///
-	zoom:                           proc "c" (
-		self: ^Browser_Host,
-		command: Zoom_Command,
-	) -> libc.int,
+	zoom:                           proc "c" (self: ^Browser_Host, command: Zoom_Command) -> c.int,
 
 	///
 	/// Get the default zoom level. This value will be 0.0 by default but can be
 	/// configured. This function can only be called on the UI thread.
 	///
-	get_default_zoom_level:         proc "c" (self: ^Browser_Host) -> libc.double,
+	get_default_zoom_level:         proc "c" (self: ^Browser_Host) -> c.double,
 
 	///
 	/// Get the current zoom level. This function can only be called on the UI
 	/// thread.
 	///
-	get_zoom_level:                 proc "c" (self: ^Browser_Host) -> libc.double,
+	get_zoom_level:                 proc "c" (self: ^Browser_Host) -> c.double,
 
 	///
 	/// Change the zoom level to the specified value. Specify 0.0 to reset the
@@ -1783,7 +1765,7 @@ Browser_Host :: struct {
 	/// applied immediately. Otherwise, the change will be applied asynchronously
 	/// on the UI thread.
 	///
-	set_zoom_level:                 proc "c" (self: ^Browser_Host, zoom_level: libc.double),
+	set_zoom_level:                 proc "c" (self: ^Browser_Host, zoom_level: c.double),
 
 	///
 	/// Call to run a file chooser dialog. Only a single file chooser dialog may
@@ -1829,9 +1811,9 @@ Browser_Host :: struct {
 	download_image:                 proc "c" (
 		self: ^Browser_Host,
 		image_url: ^String,
-		is_favicon: libc.int,
-		max_image_size: libc.uint32_t,
-		bypass_cache: libc.int,
+		is_favicon: c.int,
+		max_image_size: c.uint32_t,
+		bypass_cache: c.int,
 		callback: Download_Image_Callback,
 	),
 
@@ -1865,13 +1847,13 @@ Browser_Host :: struct {
 	find:                           proc "c" (
 		self: ^Browser_Host,
 		search_text: ^String,
-		forward, match_case, find_next: libc.int,
+		forward, match_case, find_next: c.int,
 	),
 
 	///
 	/// Cancel all searches that are currently going on.
 	///
-	stop_finding:                   proc "c" (self: ^Browser_Host, clear_selection: libc.int),
+	stop_finding:                   proc "c" (self: ^Browser_Host, clear_selection: c.int),
 
 	///
 	/// Open developer tools (DevTools) in its own browser. The DevTools browser
@@ -1899,7 +1881,7 @@ Browser_Host :: struct {
 	/// Returns true (1) if this browser currently has an associated DevTools
 	/// browser. Must be called on the browser process UI thread.
 	///
-	has_dev_tools:                  proc "c" (self: ^Browser_Host) -> libc.int,
+	has_dev_tools:                  proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Send a function call message over the DevTools protocol. |message| must be
@@ -1937,7 +1919,7 @@ Browser_Host :: struct {
 	send_dev_tools_message:         proc "c" (
 		self: ^Browser_Host,
 		message: rawptr,
-		message_size: libc.size_t,
+		message_size: c.size_t,
 	),
 
 	///
@@ -1955,10 +1937,10 @@ Browser_Host :: struct {
 	///
 	execute_dev_tools_method:       proc "c" (
 		self: ^Browser_Host,
-		message_id: libc.int,
+		message_id: c.int,
 		method: ^String,
 		params: ^Dictionary_Value,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Add an observer for DevTools protocol messages (function results and
@@ -1980,7 +1962,7 @@ Browser_Host :: struct {
 	get_navigation_entries:         proc "c" (
 		self: ^Browser_Host,
 		visitor: Navigation_Entry_Visitor,
-		current_only: libc.int,
+		current_only: c.int,
 	),
 
 	///
@@ -1997,7 +1979,7 @@ Browser_Host :: struct {
 	///
 	/// Returns true (1) if window rendering is disabled.
 	///
-	is_window_rendering_disabled:   proc "c" (self: ^Browser_Host) -> libc.int,
+	is_window_rendering_disabled:   proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Notify the browser that the widget has been resized. The browser will
@@ -2012,7 +1994,7 @@ Browser_Host :: struct {
 	/// cef_render_handler_t::OnPaint notification will stop when the browser is
 	/// hidden. This function is only used when window rendering is disabled.
 	///
-	was_hidden:                     proc "c" (self: ^Browser_Host, hidden: libc.int),
+	was_hidden:                     proc "c" (self: ^Browser_Host, hidden: c.int),
 
 	///
 	/// Send a notification to the browser that the screen info has changed. The
@@ -2050,8 +2032,8 @@ Browser_Host :: struct {
 		self: ^Browser_Host,
 		event: ^Mouse_Event,
 		type: Mouse_Button_Type,
-		mouse_up: libc.int,
-		click_count: libc.int,
+		mouse_up: c.int,
+		click_count: c.int,
 	),
 
 	///
@@ -2061,7 +2043,7 @@ Browser_Host :: struct {
 	send_mouse_move_event:          proc "c" (
 		self: ^Browser_Host,
 		event: ^Mouse_Event,
-		mouse_leave: libc.int,
+		mouse_leave: c.int,
 	),
 
 	///
@@ -2075,7 +2057,7 @@ Browser_Host :: struct {
 	send_mouse_wheel_event:         proc "c" (
 		self: ^Browser_Host,
 		event: ^Mouse_Event,
-		delta_x, delta_y: libc.int,
+		delta_x, delta_y: c.int,
 	),
 
 	///
@@ -2101,7 +2083,7 @@ Browser_Host :: struct {
 	/// requested rate. The minimum value is 1 and the maximum value is 60
 	/// (default 30). This function can only be called on the UI thread.
 	///
-	get_windowless_frame_rate:      proc "c" (self: ^Browser_Host) -> libc.int,
+	get_windowless_frame_rate:      proc "c" (self: ^Browser_Host) -> c.int,
 
 	///
 	/// Set the maximum rate in frames per second (fps) that
@@ -2111,7 +2093,7 @@ Browser_Host :: struct {
 	/// (default 30). Can also be set at browser creation via
 	/// cef_browser_tSettings.windowless_frame_rate.
 	///
-	set_windowless_frame_rate:      proc "c" (self: ^Browser_Host, frame_rate: libc.int),
+	set_windowless_frame_rate:      proc "c" (self: ^Browser_Host, frame_rate: c.int),
 }
 Run_File_Dialog_Callback :: struct {
 	base:                        Base_Ref_Counted,
@@ -2136,7 +2118,7 @@ Download_Image_Callback :: struct {
 	on_download_image_finished: proc "c" (
 		self: ^Download_Image_Callback,
 		image_url: ^String,
-		http_status_code: libc.int,
+		http_status_code: c.int,
 		image: ^Image,
 	),
 }
@@ -2145,9 +2127,9 @@ Image :: struct {
 }
 PDF_Print_Callback :: struct {
 	base:                  Base_Ref_Counted,
-	on_pdf_print_finished: proc "c" (self: ^PDF_Print_Callback, path: ^String, ok: libc.int),
+	on_pdf_print_finished: proc "c" (self: ^PDF_Print_Callback, path: ^String, ok: c.int),
 }
-Process_ID :: enum libc.int {
+Process_ID :: enum c.int {
 	Browser,
 	Renderer,
 }
@@ -2250,18 +2232,18 @@ Life_Span_Handler :: struct {
 		self: ^Life_Span_Handler,
 		browser: ^Browser,
 		frame: ^Frame,
-		popup_id: libc.int,
+		popup_id: c.int,
 		target_url: ^String,
 		target_frame_name: ^String,
 		target_disposition: Window_Open_Disposition,
-		user_gesture: libc.int,
+		user_gesture: c.int,
 		popup_features: ^Popup_Features,
 		window_info: ^Window_Info,
 		client: ^^Client,
 		settings: ^Browser_Settings,
 		extra_info: ^^Dictionary_Value,
-		no_javascript_access: ^libc.int,
-	) -> libc.int,
+		no_javascript_access: ^c.int,
+	) -> c.int,
 
 	///
 	/// Called on the UI thread if a new popup browser is aborted. This only
@@ -2281,7 +2263,7 @@ Life_Span_Handler :: struct {
 	on_before_popup_aborted:   proc "c" (
 		self: ^Life_Span_Handler,
 		browser: ^Browser,
-		popup_id: libc.int,
+		popup_id: c.int,
 	),
 
 	///
@@ -2310,7 +2292,7 @@ Life_Span_Handler :: struct {
 		client: ^^Client,
 		settings: ^Browser_Settings,
 		extra_info: ^^Dictionary_Value,
-		use_default_window: ^libc.int,
+		use_default_window: ^c.int,
 	),
 
 	///
@@ -2428,7 +2410,7 @@ Life_Span_Handler :: struct {
 	/// browsers
 	///     exist.
 	///
-	do_close:                  proc "c" (self: ^Life_Span_Handler, browser: ^Browser) -> libc.int,
+	do_close:                  proc "c" (self: ^Life_Span_Handler, browser: ^Browser) -> c.int,
 
 	///
 	/// Called just before a browser is destroyed. Release all references to the
@@ -2455,7 +2437,7 @@ Frame :: struct {
 	///
 	/// True if this object is currently attached to a valid frame.
 	///
-	is_valid:              proc "c" (self: ^Frame) -> libc.int,
+	is_valid:              proc "c" (self: ^Frame) -> c.int,
 
 	///
 	/// Execute undo in this frame.
@@ -2541,18 +2523,18 @@ Frame :: struct {
 		self: ^Frame,
 		code: ^String,
 		script_url: ^String,
-		start_line: libc.int,
+		start_line: c.int,
 	),
 
 	///
 	/// Returns true (1) if this is the main (top-level) frame.
 	///
-	is_main:               proc "c" (self: ^Frame) -> libc.int,
+	is_main:               proc "c" (self: ^Frame) -> c.int,
 
 	///
 	/// Returns true (1) if this is the focused frame.
 	///
-	is_focused:            proc "c" (self: ^Frame) -> libc.int,
+	is_focused:            proc "c" (self: ^Frame) -> c.int,
 
 	///
 	/// Returns the name for this frame. If the frame has an assigned name (for
@@ -2596,8 +2578,8 @@ Frame :: struct {
 }
 
 Point :: struct {
-	x: libc.int,
-	y: libc.int,
+	x: c.int,
+	y: c.int,
 }
 
 Registration :: struct {
@@ -2645,9 +2627,9 @@ Load_Handler :: struct {
 	on_loading_state_change: proc "c" (
 		self: ^Load_Handler,
 		browser: ^Browser,
-		is_loading: libc.int,
-		can_go_back: libc.int,
-		can_go_forward: libc.int,
+		is_loading: c.int,
+		can_go_back: c.int,
+		can_go_forward: c.int,
 	),
 	on_load_start:           proc "c" (
 		self: ^Load_Handler,
@@ -2659,7 +2641,7 @@ Load_Handler :: struct {
 		self: ^Load_Handler,
 		browser: ^Browser,
 		frame: ^Frame,
-		http_status_code: libc.int,
+		http_status_code: c.int,
 	),
 	on_load_error:           proc "c" (
 		self: ^Load_Handler,
@@ -2696,7 +2678,7 @@ Render_Handler :: struct {
 		self: ^Render_Handler,
 		browser: ^Browser,
 		rect: ^Rect,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Called to retrieve the view rectangle in screen DIP coordinates. This
@@ -2717,9 +2699,9 @@ Render_Handler :: struct {
 	get_screen_point:                 proc "c" (
 		self: ^Render_Handler,
 		browser: ^Browser,
-		view_x, view_y: libc.int,
-		screen_x, screen_y: ^libc.int,
-	) -> libc.int,
+		view_x, view_y: c.int,
+		screen_x, screen_y: ^c.int,
+	) -> c.int,
 
 	///
 	/// Called to allow the client to fill in the CefScreenInfo object with
@@ -2734,7 +2716,7 @@ Render_Handler :: struct {
 		self: ^Render_Handler,
 		browser: ^Browser,
 		screen_info: ^Screen_Info,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Called when the browser wants to show or hide the popup widget. The popup
@@ -2743,7 +2725,7 @@ Render_Handler :: struct {
 	on_popup_show:                    proc "c" (
 		self: ^Render_Handler,
 		browser: ^Browser,
-		show: libc.int,
+		show: c.int,
 	),
 
 	///
@@ -2771,10 +2753,10 @@ Render_Handler :: struct {
 		self: ^Render_Handler,
 		browser: ^Browser,
 		type: Paint_Element_Type,
-		dirty_rects_count: libc.size_t,
+		dirty_rects_count: c.size_t,
 		dirty_rects: [^]Rect,
 		buffer: rawptr,
-		width, height: libc.int,
+		width, height: c.int,
 	),
 
 	///
@@ -2799,7 +2781,7 @@ Render_Handler :: struct {
 		self: ^Render_Handler,
 		browser: ^Browser,
 		type: Paint_Element_Type,
-		dirty_rects_count: libc.size_t,
+		dirty_rects_count: c.size_t,
 		dirty_rects: [^]Rect,
 		info: [^]Accelerated_Paint_Info,
 	),
@@ -2844,8 +2826,8 @@ Render_Handler :: struct {
 		browser: ^Browser,
 		drag_data: ^Drag_Data,
 		allowed_ops: Drag_Operations_Mask,
-		x, y: libc.int,
-	) -> libc.int,
+		x, y: c.int,
+	) -> c.int,
 
 	///
 	/// Called when the web view wants to update the mouse cursor during a drag &
@@ -2864,7 +2846,7 @@ Render_Handler :: struct {
 	on_scroll_offset_changed:         proc "c" (
 		self: ^Render_Handler,
 		browser: ^Browser,
-		x, y: libc.double,
+		x, y: c.double,
 	),
 
 	///
@@ -2876,7 +2858,7 @@ Render_Handler :: struct {
 		self: ^Render_Handler,
 		browser: ^Browser,
 		selected_range: ^Range,
-		character_bounds_count: libc.size_t,
+		character_bounds_count: c.size_t,
 		character_bounds: [^]Rect,
 	),
 
@@ -2923,7 +2905,7 @@ Paint_Element_Type :: enum {
 }
 
 Accelerated_Paint_Info :: struct {
-	size: libc.size_t,
+	size: c.size_t,
 }
 
 Horizontal_Alignment :: enum {
@@ -2933,10 +2915,10 @@ Horizontal_Alignment :: enum {
 }
 
 Touch_Handle_State :: struct {
-	size: libc.size_t,
+	size: c.size_t,
 }
 
-Drag_Operations_Mask :: enum libc.uint32_t {
+Drag_Operations_Mask :: enum c.uint32_t {
 	None    = 0,
 	Copy    = 1,
 	Link    = 2,
@@ -2944,7 +2926,7 @@ Drag_Operations_Mask :: enum libc.uint32_t {
 	Private = 8,
 	Move    = 16,
 	Delete  = 32,
-	Every   = libc.UINT32_MAX,
+	Every   = c.UINT32_MAX,
 }
 
 Text_Input_Mode :: enum {
@@ -2960,7 +2942,7 @@ Text_Input_Mode :: enum {
 }
 
 Range :: struct {
-	from, to: libc.uint32_t,
+	from, to: c.uint32_t,
 }
 
 Request_Handler :: struct {
@@ -3103,7 +3085,7 @@ Browser :: struct {
 	/// True if this object is currently valid. This will return false (0) after
 	/// cef_life_span_handler_t::OnBeforeClose is called.
 	///
-	is_valid:                proc "c" (self: ^Browser) -> libc.int,
+	is_valid:                proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Returns the browser host object. This function can only be called in the
@@ -3114,7 +3096,7 @@ Browser :: struct {
 	///
 	/// Returns true (1) if the browser can navigate backwards.
 	///
-	can_go_back:             proc "c" (self: ^Browser) -> libc.int,
+	can_go_back:             proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Navigate backwards.
@@ -3124,7 +3106,7 @@ Browser :: struct {
 	///
 	/// Returns true (1) if the browser can navigate forwards.
 	///
-	can_go_forward:          proc "c" (self: ^Browser) -> libc.int,
+	can_go_forward:          proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Navigate forwards.
@@ -3134,7 +3116,7 @@ Browser :: struct {
 	///
 	/// Returns true (1) if the browser is currently loading.
 	///
-	is_loading:              proc "c" (self: ^Browser) -> libc.int,
+	is_loading:              proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Reload the current page.
@@ -3155,23 +3137,23 @@ Browser :: struct {
 	/// Returns the globally unique identifier for this browser. This value is
 	/// also used as the tabId for extension APIs.
 	///
-	get_identifier:          proc "c" (self: ^Browser) -> libc.int,
+	get_identifier:          proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Returns true (1) if this object is pointing to the same handle as |that|
 	/// object.
 	///
-	is_same:                 proc "c" (self: ^Browser, that: ^Browser) -> libc.int,
+	is_same:                 proc "c" (self: ^Browser, that: ^Browser) -> c.int,
 
 	///
 	/// Returns true (1) if the browser is a popup.
 	///
-	is_popup:                proc "c" (self: ^Browser) -> libc.int,
+	is_popup:                proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Returns true (1) if a document has been loaded in the browser.
 	///
-	has_document:            proc "c" (self: ^Browser) -> libc.int,
+	has_document:            proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Returns the main (top-level) frame for the browser. In the browser process
@@ -3202,7 +3184,7 @@ Browser :: struct {
 	///
 	/// Returns the number of frames that currently exist.
 	///
-	get_frame_count:         proc "c" (self: ^Browser) -> libc.int,
+	get_frame_count:         proc "c" (self: ^Browser) -> c.int,
 
 	///
 	/// Returns the identifiers of all existing frames.
@@ -3215,7 +3197,7 @@ Browser :: struct {
 	get_frame_names:         proc "c" (self: ^Browser, names: String_List),
 }
 
-Basetime :: distinct libc.int64_t
+Basetime :: distinct c.int64_t
 
 Task_Runner :: struct {
 	base: Base_Ref_Counted,
@@ -3252,11 +3234,11 @@ V8_Handler :: struct {
 		self: ^V8_Handler,
 		name: ^String,
 		object: ^V8_Value,
-		arguments_count: libc.size_t,
+		arguments_count: c.size_t,
 		arguments: [^]V8_Value,
 		retval: ^^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 }
 
 ///
@@ -3286,7 +3268,7 @@ V8_Context :: struct {
 	/// on the current thread. Do not call any other functions if this function
 	/// returns false (0).
 	///
-	is_valid:        proc "c" (self: ^V8_Context) -> libc.int,
+	is_valid:        proc "c" (self: ^V8_Context) -> c.int,
 
 	///
 	/// Returns the browser for this context. This function will return an NULL
@@ -3313,19 +3295,19 @@ V8_Context :: struct {
 	/// objects belong to the context in which they are created. Returns true (1)
 	/// if the scope was entered successfully.
 	///
-	enter:           proc "c" (self: ^V8_Context) -> libc.int,
+	enter:           proc "c" (self: ^V8_Context) -> c.int,
 
 	///
 	/// Exit this context. Call this function only after calling enter(). Returns
 	/// true (1) if the scope was exited successfully.
 	///
-	exit:            proc "c" (self: ^V8_Context) -> libc.int,
+	exit:            proc "c" (self: ^V8_Context) -> c.int,
 
 	///
 	/// Returns true (1) if this object is pointing to the same handle as |that|
 	/// object.
 	///
-	is_same:         proc "c" (self: ^V8_Context, that: ^V8_Context) -> libc.int,
+	is_same:         proc "c" (self: ^V8_Context, that: ^V8_Context) -> c.int,
 
 	///
 	/// Execute a string of JavaScript code in this V8 context. The |script_url|
@@ -3339,10 +3321,10 @@ V8_Context :: struct {
 		self: ^V8_Context,
 		code: ^String,
 		script_url: ^String,
-		start_line: libc.int,
+		start_line: c.int,
 		retval: ^^V8_Value,
 		exception: ^^V8_Exception,
-	) -> libc.int,
+	) -> c.int,
 }
 
 ///
@@ -3365,98 +3347,98 @@ V8_Value :: struct {
 	/// on the current thread. Do not call any other functions if this function
 	/// returns false (0).
 	///
-	is_valid:                proc "c" (self: ^V8_Value) -> libc.int,
+	is_valid:                proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is undefined.
 	///
-	is_undefined:            proc "c" (self: ^V8_Value) -> libc.int,
+	is_undefined:            proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is null.
 	///
-	is_null:                 proc "c" (self: ^V8_Value) -> libc.int,
+	is_null:                 proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is bool.
 	///
-	is_bool:                 proc "c" (self: ^V8_Value) -> libc.int,
+	is_bool:                 proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is int.
 	///
-	is_int:                  proc "c" (self: ^V8_Value) -> libc.int,
+	is_int:                  proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is unsigned int.
 	///
-	is_uint:                 proc "c" (self: ^V8_Value) -> libc.int,
+	is_uint:                 proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is double.
 	///
-	is_double:               proc "c" (self: ^V8_Value) -> libc.int,
+	is_double:               proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is Date.
 	///
-	is_date:                 proc "c" (self: ^V8_Value) -> libc.int,
+	is_date:                 proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is string.
 	///
-	is_string:               proc "c" (self: ^V8_Value) -> libc.int,
+	is_string:               proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is object.
 	///
-	is_object:               proc "c" (self: ^V8_Value) -> libc.int,
+	is_object:               proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is array.
 	///
-	is_array:                proc "c" (self: ^V8_Value) -> libc.int,
+	is_array:                proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is an ArrayBuffer.
 	///
-	is_array_buffer:         proc "c" (self: ^V8_Value) -> libc.int,
+	is_array_buffer:         proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is function.
 	///
-	is_function:             proc "c" (self: ^V8_Value) -> libc.int,
+	is_function:             proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// True if the value type is a Promise.
 	///
-	is_promise:              proc "c" (self: ^V8_Value) -> libc.int,
+	is_promise:              proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object is pointing to the same handle as |that|
 	/// object.
 	///
-	is_same:                 proc "c" (self: ^V8_Value, that: ^V8_Value) -> libc.int,
+	is_same:                 proc "c" (self: ^V8_Value, that: ^V8_Value) -> c.int,
 
 	///
 	/// Return a bool value.
 	///
-	get_bool_value:          proc "c" (self: ^V8_Value) -> libc.int,
+	get_bool_value:          proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Return an int value.
 	///
-	get_int_value:           proc "c" (self: ^V8_Value) -> libc.int32_t,
+	get_int_value:           proc "c" (self: ^V8_Value) -> c.int32_t,
 
 	///
 	/// Return an unsigned int value.
 	///
-	get_uint_value:          proc "c" (self: ^V8_Value) -> libc.uint32_t,
+	get_uint_value:          proc "c" (self: ^V8_Value) -> c.uint32_t,
 
 	///
 	/// Return a double value.
 	///
-	get_double_value:        proc "c" (self: ^V8_Value) -> libc.double,
+	get_double_value:        proc "c" (self: ^V8_Value) -> c.double,
 
 	///
 	/// Return a Date value.
@@ -3472,13 +3454,13 @@ V8_Value :: struct {
 	///
 	/// Returns true (1) if this is a user created object.
 	///
-	is_user_created:         proc "c" (self: ^V8_Value) -> libc.int,
+	is_user_created:         proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Returns true (1) if the last function call resulted in an exception. This
 	/// attribute exists only in the scope of the current CEF value object.
 	///
-	has_exception:           proc "c" (self: ^V8_Value) -> libc.int,
+	has_exception:           proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Returns the exception resulting from the last function call. This
@@ -3489,13 +3471,13 @@ V8_Value :: struct {
 	///
 	/// Clears the last exception and returns true (1) on success.
 	///
-	clear_exception:         proc "c" (self: ^V8_Value) -> libc.int,
+	clear_exception:         proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Returns true (1) if this object will re-throw future exceptions. This
 	/// attribute exists only in the scope of the current CEF value object.
 	///
-	will_rethrow_exceptions: proc "c" (self: ^V8_Value) -> libc.int,
+	will_rethrow_exceptions: proc "c" (self: ^V8_Value) -> c.int,
 
 	///
 	/// Set whether this object will re-throw future exceptions. By default
@@ -3504,17 +3486,17 @@ V8_Value :: struct {
 	/// caught and not re-thrown. Returns true (1) on success. This attribute
 	/// exists only in the scope of the current CEF value object.
 	///
-	set_rethrow_exceptions:  proc "c" (self: ^V8_Value, rethrow: libc.int) -> libc.int,
+	set_rethrow_exceptions:  proc "c" (self: ^V8_Value, rethrow: c.int) -> c.int,
 
 	///
 	/// Returns true (1) if the object has a value with the specified identifier.
 	///
-	has_value_bykey:         proc "c" (self: ^V8_Value, key: ^String) -> libc.int,
+	has_value_bykey:         proc "c" (self: ^V8_Value, key: ^String) -> c.int,
 
 	///
 	/// Returns true (1) if the object has a value with the specified identifier.
 	///
-	has_value_byindex:       proc "c" (self: ^V8_Value, index: libc.int) -> libc.int,
+	has_value_byindex:       proc "c" (self: ^V8_Value, index: c.int) -> c.int,
 
 	///
 	/// Deletes the value with the specified identifier and returns true (1) on
@@ -3522,7 +3504,7 @@ V8_Value :: struct {
 	/// exception is thrown. For read-only and don't-delete values this function
 	/// will return true (1) even though deletion failed.
 	///
-	delete_value_bykey:      proc "c" (self: ^V8_Value, key: ^String) -> libc.int,
+	delete_value_bykey:      proc "c" (self: ^V8_Value, key: ^String) -> c.int,
 
 	///
 	/// Deletes the value with the specified identifier and returns true (1) on
@@ -3530,7 +3512,7 @@ V8_Value :: struct {
 	/// exception is thrown. For read-only and don't-delete values this function
 	/// will return true (1) even though deletion failed.
 	///
-	delete_value_byindex:    proc "c" (self: ^V8_Value, index: libc.int) -> libc.int,
+	delete_value_byindex:    proc "c" (self: ^V8_Value, index: c.int) -> c.int,
 
 	///
 	/// Returns the value with the specified identifier on success. Returns NULL
@@ -3542,7 +3524,7 @@ V8_Value :: struct {
 	/// Returns the value with the specified index on success. Returns NULL
 	/// if this function is called incorrectly or an exception is thrown.
 	///
-	get_value_byindex:       proc "c" (self: ^V8_Value, index: libc.int) -> ^V8_Value,
+	get_value_byindex:       proc "c" (self: ^V8_Value, index: c.int) -> ^V8_Value,
 
 	///
 	/// Associates a value with the specified identifier and returns true (1) on
@@ -3555,7 +3537,7 @@ V8_Value :: struct {
 		key: ^String,
 		value: ^V8_Value,
 		attribute: V8_Property_Attribute,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Associates a value with the specified index and returns true (1) on
@@ -3563,11 +3545,7 @@ V8_Value :: struct {
 	/// exception is thrown. For read-only values this function will return true
 	/// (1) even though assignment failed.
 	///
-	set_value_byindex:       proc "c" (
-		self: ^V8_Value,
-		index: libc.int,
-		value: ^V8_Value,
-	) -> libc.int,
+	set_value_byindex:       proc "c" (self: ^V8_Value, index: c.int, value: ^V8_Value) -> c.int,
 }
 
 ///
@@ -3610,17 +3588,17 @@ V8_Stack_Trace :: struct {
 	/// on the current thread. Do not call any other functions if this function
 	/// returns false (0).
 	///
-	is_valid:        proc "c" (self: ^V8_Stack_Trace) -> libc.int,
+	is_valid:        proc "c" (self: ^V8_Stack_Trace) -> c.int,
 
 	///
 	/// Returns the number of frames on the stack.
 	///
-	get_frame_count: proc "c" (self: ^V8_Stack_Trace) -> libc.int,
+	get_frame_count: proc "c" (self: ^V8_Stack_Trace) -> c.int,
 
 	///
 	/// Returns the stack frame at the specified 0-based index.
 	///
-	get_frame:       proc "c" (self: ^V8_Stack_Trace, index: libc.int) -> ^V8_Stack_Frame,
+	get_frame:       proc "c" (self: ^V8_Stack_Trace, index: c.int) -> ^V8_Stack_Frame,
 }
 
 ///
@@ -3644,7 +3622,7 @@ V8_Stack_Frame :: struct {
 	/// on the current thread. Do not call any other functions if this function
 	/// returns false (0).
 	///
-	is_valid:                      proc "c" (self: ^V8_Stack_Frame) -> libc.int,
+	is_valid:                      proc "c" (self: ^V8_Stack_Frame) -> c.int,
 
 	///
 	/// Returns the name of the resource script that contains the function.
@@ -3669,23 +3647,23 @@ V8_Stack_Frame :: struct {
 	///
 	/// Returns the 1-based line number for the function call or 0 if unknown.
 	///
-	get_line_number:               proc "c" (self: ^V8_Stack_Frame) -> libc.int,
+	get_line_number:               proc "c" (self: ^V8_Stack_Frame) -> c.int,
 
 	///
 	/// Returns the 1-based column offset on the line for the function call or 0
 	/// if unknown.
 	///
-	get_column:                    proc "c" (self: ^V8_Stack_Frame) -> libc.int,
+	get_column:                    proc "c" (self: ^V8_Stack_Frame) -> c.int,
 
 	///
 	/// Returns true (1) if the function was compiled using eval().
 	///
-	is_eval:                       proc "c" (self: ^V8_Stack_Frame) -> libc.int,
+	is_eval:                       proc "c" (self: ^V8_Stack_Frame) -> c.int,
 
 	///
 	/// Returns true (1) if the function was called as a constructor via "new".
 	///
-	is_constructor:                proc "c" (self: ^V8_Stack_Frame) -> libc.int,
+	is_constructor:                proc "c" (self: ^V8_Stack_Frame) -> c.int,
 }
 
 ///
@@ -3734,7 +3712,7 @@ V8_Accessor :: struct {
 		object: ^V8_Value,
 		retval: ^^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Handle assignment of the accessor value identified by |name|. |object| is
@@ -3749,7 +3727,7 @@ V8_Accessor :: struct {
 		object: ^V8_Value,
 		value: ^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 }
 
 ///
@@ -3783,7 +3761,7 @@ V8_Interceptor :: struct {
 		object: ^V8_Value,
 		retval: ^^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Handle retrieval of the interceptor value identified by |index|. |object|
@@ -3799,7 +3777,7 @@ V8_Interceptor :: struct {
 		object: ^V8_Value,
 		retval: ^^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Handle assignment of the interceptor value identified by |name|. |object|
@@ -3815,7 +3793,7 @@ V8_Interceptor :: struct {
 		object: ^V8_Value,
 		value: ^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 
 	///
 	/// Handle assignment of the interceptor value identified by |index|. |object|
@@ -3830,6 +3808,6 @@ V8_Interceptor :: struct {
 		object: ^V8_Value,
 		value: ^V8_Value,
 		exception: ^String,
-	) -> libc.int,
+	) -> c.int,
 }
 
