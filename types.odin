@@ -24,6 +24,16 @@ Window_Handle :: windows.HWND
 
 Color :: c.uint32_t
 
+Thread_ID :: enum c.int {
+	UI,
+	File_Background,
+	File_User_Visible,
+	File_User_Blocking,
+	Process_Launcher,
+	IO,
+	Renderer,
+}
+
 State :: enum c.int {
 	Default,
 	Enabled,
@@ -71,6 +81,80 @@ Size :: struct {
 Preferences_Type :: enum {
 	Global,
 	Request_Context,
+}
+
+///
+/// Implement this structure for asynchronous task execution. If the task is
+/// posted successfully and if the associated message loop is still running then
+/// the execute() function will be called on the target thread. If the task
+/// fails to post then the task object may be destroyed on the source thread
+/// instead of the target thread. For this reason be cautious when performing
+/// work in the task object destructor.
+///
+/// NOTE: This struct is allocated client-side.
+///
+Task :: struct {
+	///
+	/// Base structure.
+	///
+	base:    Base_Ref_Counted,
+
+	///
+	/// Method that will be executed on the target thread.
+	///
+	execute: proc "c" (task: ^Task),
+}
+
+///
+/// Structure that asynchronously executes tasks on the associated thread. It is
+/// safe to call the functions of this structure on any thread.
+///
+/// CEF maintains multiple internal threads that are used for handling different
+/// types of tasks in different processes. The cef_thread_id_t definitions in
+/// cef_types.h list the common CEF threads. Task runners are also available for
+/// other CEF threads as appropriate (for example, V8 WebWorker threads).
+///
+/// NOTE: This struct is allocated DLL-side.
+///
+Task_Runner :: struct {
+	///
+	/// Base structure.
+	///
+	base:                      Base_Ref_Counted,
+
+	///
+	/// Returns true (1) if this object is pointing to the same task runner as
+	/// |that| object.
+	///
+	is_same:                   proc "c" (self: ^Task_Runner, that: ^Task_Runner) -> c.int,
+
+	///
+	/// Returns true (1) if this task runner belongs to the current thread.
+	///
+	belongs_to_current_thread: proc "c" (self: ^Task_Runner) -> c.int,
+
+	///
+	/// Returns true (1) if this task runner is for the specified CEF thread.
+	///
+	belongs_to_thread:         proc "c" (self: ^Task_Runner, thread_id: Thread_ID) -> c.int,
+
+	///
+	/// Post a task for execution on the thread associated with this task runner.
+	/// Execution will occur asynchronously.
+	///
+	post_task:                 proc "c" (self: ^Task_Runner, task: ^Task) -> c.int,
+
+	///
+	/// Post a task for delayed execution on the thread associated with this task
+	/// runner. Execution will occur asynchronously. Delayed tasks are not
+	/// supported on V8 WebWorker threads and will be executed without the
+	/// specified delay.
+	///
+	post_delayed_task:         proc "c" (
+		self: ^Task_Runner,
+		task: ^Task,
+		delay_ms: c.int64_t,
+	) -> c.int,
 }
 
 Preference_Registrar :: struct {
@@ -1274,7 +1358,7 @@ Render_Process_Handler :: struct {
 		frame: ^Frame,
 		source_process: Process_ID,
 		message: ^Process_Message,
-	),
+	) -> c.bool,
 }
 
 App :: struct {
@@ -2133,10 +2217,120 @@ Process_ID :: enum c.int {
 	Browser,
 	Renderer,
 }
-Process_Message :: struct {
-	base: Base_Ref_Counted,
+
+///
+/// Structure that builds a cef_process_message_t containing a shared memory
+/// region. This structure is not thread-safe but may be used exclusively on a
+/// different thread from the one which constructed it.
+///
+/// NOTE: This struct is allocated DLL-side.
+///
+Shared_Process_Message_Builder :: struct {
+	///
+	/// Base structure.
+	///
+	base:     Base_Ref_Counted,
+
+	///
+	/// Returns true (1) if the builder is valid.
+	///
+	is_valid: proc "c" (self: ^Shared_Process_Message_Builder) -> c.int,
+
+	///
+	/// Returns the size of the shared memory region in bytes. Returns 0 for
+	/// invalid instances.
+	///
+	size:     proc "c" (self: ^Shared_Process_Message_Builder) -> c.int,
+
+	///
+	/// Returns the pointer to the writable memory. Returns nullptr for invalid
+	/// instances. The returned pointer is only valid for the life span of this
+	/// object.
+	///
+	memory:   proc "c" (self: ^Shared_Process_Message_Builder) -> rawptr,
+
+	///
+	/// Creates a new cef_process_message_t from the data provided to the builder.
+	/// Returns nullptr for invalid instances. Invalidates the builder instance.
+	///
+	build:    proc "c" (self: ^Shared_Process_Message_Builder) -> ^Process_Message,
 }
 
+///
+/// Structure representing a message. Can be used on any process and thread.
+///
+/// NOTE: This struct is allocated DLL-side.
+///
+Process_Message :: struct {
+	///
+	/// Base structure.
+	///
+	base:                     Base_Ref_Counted,
+
+	///
+	/// Returns true (1) if this object is valid. Do not call any other functions
+	/// if this function returns false (0).
+	///
+	is_valid:                 proc "c" (self: ^Process_Message) -> c.int,
+
+	///
+	/// Returns true (1) if the values of this object are read-only. Some APIs may
+	/// expose read-only objects.
+	///
+	is_read_only:             proc "c" (self: ^Process_Message) -> c.int,
+
+	///
+	/// Returns a writable copy of this object. Returns nullptr when message
+	/// contains a shared memory region.
+	///
+	copy:                     proc "c" (self: ^Process_Message) -> ^Process_Message,
+
+	///
+	/// Returns the message name.
+	///
+	// The resulting string must be freed by calling cef_string_userfree_free().
+	get_name:                 proc "c" (self: ^Process_Message) -> String_Userfree,
+
+	///
+	/// Returns the list of arguments. Returns nullptr when message contains a
+	/// shared memory region.
+	///
+	get_argument_list:        proc "c" (self: ^Process_Message) -> ^List_Value,
+
+	///
+	/// Returns the shared memory region. Returns nullptr when message contains an
+	/// argument list.
+	///
+	get_shared_memory_region: proc "c" (self: ^Process_Message) -> ^Shared_Memory_Region,
+}
+
+///
+/// Structure that wraps platform-dependent share memory region mapping.
+///
+/// NOTE: This struct is allocated DLL-side.
+///
+Shared_Memory_Region :: struct {
+	///
+	/// Base structure.
+	///
+	base:     Base_Ref_Counted,
+
+	///
+	/// Returns true (1) if the mapping is valid.
+	///
+	is_valid: proc "c" (self: ^Shared_Memory_Region) -> c.int,
+
+	///
+	/// Returns the size of the mapping in bytes. Returns 0 for invalid instances.
+	///
+	size:     proc "c" (self: ^Shared_Memory_Region) -> c.int,
+
+	///
+	/// Returns the pointer to the memory. Returns nullptr for invalid instances.
+	/// The returned pointer is only valid for the life span of this object.
+	///
+	memory:   proc "c" (self: ^Shared_Memory_Region) -> rawptr,
+}
 
 Audio_Handler :: struct {
 	base: Base_Ref_Counted,
@@ -2563,7 +2757,7 @@ Frame :: struct {
 	/// Returns the URL currently loaded in this frame.
 	///
 	// The resulting string must be freed by calling cef_string_userfree_free().
-	get_url:               proc "c" (self: ^Frame) -> ^String_Userfree,
+	get_url:               proc "c" (self: ^Frame) -> String_Userfree,
 
 	///
 	/// Returns the browser that this frame belongs to.
@@ -2575,6 +2769,59 @@ Frame :: struct {
 	/// called from the render process.
 	///
 	get_v8_context:        proc "c" (self: ^Frame) -> ^V8_Context,
+
+	///
+	/// Visit the DOM document. This function can only be called from the render
+	/// process.
+	///
+	visit_dom:             proc "c" (self: ^Frame, visitor: ^DOM_Visitor),
+
+	///
+	/// Create a new URL request that will be treated as originating from this
+	/// frame and the associated browser. Use cef_urlrequest_t::Create instead if
+	/// you do not want the request to have this association, in which case it may
+	/// be handled differently (see documentation on that function). A request
+	/// created with this function may only originate from the browser process,
+	/// and will behave as follows:
+	///   - It may be intercepted by the client via CefResourceRequestHandler or
+	///     CefSchemeHandlerFactory.
+	///   - POST data may only contain a single element of type PDE_TYPE_FILE or
+	///     PDE_TYPE_BYTES.
+	///
+	/// The |request| object will be marked as read-only after calling this
+	/// function.
+	///
+	create_url_request:    proc "c" (
+		self: ^Frame,
+		request: ^Request,
+		client: ^URL_Request_Client,
+	) -> ^URL_Request,
+
+	///
+	/// Send a message to the specified |target_process|. Ownership of the message
+	/// contents will be transferred and the |message| reference will be
+	/// invalidated. Message delivery is not guaranteed in all cases (for example,
+	/// if the browser is closing, navigating, or if the target process crashes).
+	/// Send an ACK message back from the target process if confirmation is
+	/// required.
+	///
+	send_process_message:  proc "c" (
+		self: ^Frame,
+		target_process: Process_ID,
+		message: ^Process_Message,
+	),
+}
+
+URL_Request_Client :: struct {
+	base: Base_Ref_Counted,
+}
+
+URL_Request :: struct {
+	base: Base_Ref_Counted,
+}
+
+DOM_Visitor :: struct {
+	base: Base_Ref_Counted,
 }
 
 Point :: struct {
@@ -2652,10 +2899,10 @@ Load_Handler :: struct {
 		failed_url: ^String,
 	),
 }
+
 Print_Handler :: struct {
 	base: Base_Ref_Counted,
 }
-
 
 Render_Handler :: struct {
 	///
@@ -3198,10 +3445,6 @@ Browser :: struct {
 }
 
 Basetime :: distinct c.int64_t
-
-Task_Runner :: struct {
-	base: Base_Ref_Counted,
-}
 
 V8_Property_Attribute :: enum {
 	None,

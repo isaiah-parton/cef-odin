@@ -226,6 +226,14 @@ foreign cef {
 	v8_context_get_entered_context :: proc() -> ^V8_Context ---
 	v8_context_in_context :: proc() -> libc.int ---
 
+	task_runner_get_for_current_thread :: proc() -> ^Task_Runner ---
+	task_runner_get_for_thread :: proc(thread_id: Thread_ID) -> ^Task_Runner ---
+	currently_on :: proc(thread_id: Thread_ID) -> libc.int ---
+	post_task :: proc(thread_id: Thread_ID, task: ^Task) -> libc.int ---
+	post_delayed_task :: proc(thread_id: Thread_ID, task: ^Task, delay_ms: libc.int64_t) -> libc.int ---
+
+	shared_process_message_builder_create :: proc(name: ^String, byte_size: libc.int) -> ^Shared_Process_Message_Builder ---
+
 	browser_host_create_browser :: proc(windowInfo: ^Window_Info, client: ^Client, url: ^String, settings: ^Browser_Settings, extra_info: ^Dictionary_Value, request_context: ^Request_Context) -> libc.int ---
 	browser_host_create_browser_sync :: proc(windowInfo: ^Window_Info, client: ^Client, url: ^String, settings: ^Browser_Settings, extra_info: ^Dictionary_Value, request_context: ^Request_Context) -> ^Browser ---
 }
