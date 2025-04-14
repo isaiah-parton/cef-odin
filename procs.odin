@@ -4,6 +4,7 @@ import "base:intrinsics"
 import "base:runtime"
 import "core:c/libc"
 import "core:fmt"
+import "core:mem"
 import "core:sys/windows"
 
 when ODIN_OS == .Windows {
@@ -308,24 +309,22 @@ to_odin_string :: proc(s: ^String, allocator := context.temp_allocator) -> strin
 
 to_cef_string :: proc(s: string, allocator := context.allocator) -> String {
 	str := windows.utf8_to_utf16(s, allocator = allocator)
-	return String{str = raw_data(str), length = len(str), dtor = proc "c" (s: [^]u16) {
-			context = runtime.default_context()
-			free(s)
-		}}
+	s := String {
+		str    = raw_data(str),
+		length = len(str),
+	}
+	return s
 }
 
 to_cef_string_ptr :: proc(s: string, allocator := context.temp_allocator) -> ^String {
 	return new_clone(to_cef_string(s, allocator), allocator = allocator)
 }
 
-delete_cef_string :: proc(s: ^String) {
+delete_cef_string :: proc(s: ^_String($T)) {
 	if s == nil {
 		return
 	}
-	if s.dtor == nil {
-		return
-	}
-	s.dtor(s.str)
+	mem.free_with_size(s.str, int(s.length) * size_of(T))
 }
 
 make_object :: proc($T: typeid/struct {
